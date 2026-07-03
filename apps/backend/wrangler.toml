@@ -1,0 +1,19 @@
+name = "planning-poker-backend"
+main = "src/server.ts"
+compatibility_date = "2025-01-01"
+
+routes = [
+  { pattern = "api.planningpoker.mavz.eu", custom_domain = true }
+]
+
+[[durable_objects.bindings]]
+name = "PLANNING_POKER_SERVER"
+class_name = "PlanningPokerServer"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["PokerServer"]
+
+[[migrations]]
+tag = "v2"
+renamed_classes = [{from = "PokerServer", to = "PlanningPokerServer"}]

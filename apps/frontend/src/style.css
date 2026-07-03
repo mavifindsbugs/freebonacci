@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Required for Alpine x-cloak to work with Vite's deferred module loading */
+[x-cloak] { display: none !important; }
+
+/* Design tokens — dark, premium aesthetic */
+@theme {
+  --color-surface:        #0f1117;
+  --color-surface-raised: #181c27;
+  --color-surface-border: #252a3a;
+  --color-accent:         #6366f1;   /* indigo-500 */
+  --color-accent-hover:   #4f46e5;
+  --color-success:        #22c55e;
+  --color-muted:          #6b7280;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: #f3f4f6; /* gray-100 */
+}

@@ -1,0 +1,44 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build backend (type-check + partykit compile)
+        run: pnpm --filter backend build
+
+      - name: Build frontend (Vite + Tailwind)
+        run: pnpm --filter frontend build
+
+      - name: Deploy backend to Cloudflare Workers
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        working-directory: apps/backend
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Deploy frontend to Cloudflare Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        working-directory: apps/frontend
+        run: npx wrangler pages deploy dist --project-name=planning-poker-frontend
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

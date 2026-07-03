@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "pnpm": {
+    "enabled": true
+  },
+  "timezone": "UTC",
+  "schedule": ["before 5am on monday"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Group pipeline and builder dependencies cleanly",
+      "matchPackageNames": ["vite", "@tailwindcss/vite", "tailwindcss", "typescript", "alpinejs", "partysocket"],
+      "groupName": "compiler-tooling"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": ["@me"]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "planning-poker-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter '*' dev",
+    "build": "pnpm --filter frontend build",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
