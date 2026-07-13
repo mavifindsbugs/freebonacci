@@ -73,11 +73,18 @@ export class PlanningPokerServer extends Server<Env> {
 
   private rateLimits = new Map<string, number[]>();
 
+  async onStart() {
+    const savedState = await this.ctx.storage.get<GameState>("gameState");
+    if (savedState) {
+      this.gameState = savedState;
+    }
+  }
+
   onConnect(connection: Connection, ctx: any) {
     connection.send(JSON.stringify({ type: "STATE", state: this.gameState }));
   }
 
-  onMessage(sender: Connection, message: string) {
+  async onMessage(sender: Connection, message: string) {
     // Rate limiting
     const now = Date.now();
     const timestamps = this.rateLimits.get(sender.id) ?? [];
@@ -146,15 +153,17 @@ export class PlanningPokerServer extends Server<Env> {
       }
 
       this.broadcast(JSON.stringify({ type: "STATE", state: this.gameState }));
+      await this.ctx.storage.put("gameState", this.gameState);
     } catch (err) {
       console.error("Failed to process message:", err);
     }
   }
 
-  onClose(connection: Connection) {
+  async onClose(connection: Connection) {
     delete this.gameState.players[connection.id];
     this.rateLimits.delete(connection.id);
     this.broadcast(JSON.stringify({ type: "STATE", state: this.gameState }));
+    await this.ctx.storage.put("gameState", this.gameState);
   }
 
   private computeRoundResult(roundNumber: number): RoundResult {
