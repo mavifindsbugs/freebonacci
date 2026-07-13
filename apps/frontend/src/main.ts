@@ -21,8 +21,8 @@ document.addEventListener('alpine:init', () => {
       players: {} as Record<string, Player>, 
       isRevealed: false, 
       deck: 'fibonacci', 
-      lastRound: null,
-      history: []
+      history: [],
+      roundCount: 0
     } as GameState,
     cards: { 
       fibonacci: ['1','2','3','5','8','13','21','?','☕'], 

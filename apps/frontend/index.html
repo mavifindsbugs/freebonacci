@@ -95,17 +95,17 @@
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Average</span>
             <span class="text-2xl font-bold transition-colors" 
                   :class="gameState.isRevealed ? 'text-white' : 'text-[var(--color-surface-border)]'"
-                  x-text="gameState.isRevealed && gameState.lastRound?.average ? gameState.lastRound.average : '-.-'"></span>
+                  x-text="gameState.isRevealed && gameState.history[0]?.average ? gameState.history[0].average : '-.-'"></span>
           </div>
           <div class="text-center flex flex-col justify-center">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Agreement</span>
             <span class="text-lg font-bold transition-colors" 
                   :class="!gameState.isRevealed ? 'text-[var(--color-surface-border)]' : {
-                    'text-[var(--color-success)]': gameState.lastRound?.agreement === 'full',
-                    'text-yellow-400': gameState.lastRound?.agreement === 'close',
-                    'text-red-400': gameState.lastRound?.agreement === 'split'
+                    'text-[var(--color-success)]': gameState.history[0]?.agreement === 'full',
+                    'text-yellow-400': gameState.history[0]?.agreement === 'close',
+                    'text-red-400': gameState.history[0]?.agreement === 'split'
                   }"
-                  x-text="gameState.isRevealed && gameState.lastRound ? gameState.lastRound.agreement.toUpperCase() : '---'"></span>
+                  x-text="gameState.isRevealed && gameState.history[0] ? gameState.history[0].agreement.toUpperCase() : '---'"></span>
           </div>
         </div>
 
@@ -129,7 +129,7 @@
           <div class="flex flex-col gap-1 pb-2">
             <template x-for="(round, index) in gameState.history" :key="round.timestamp">
               <div class="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-md px-2 py-1.5 text-xs shadow-sm">
-                <span class="text-[var(--color-muted)]">Round <span x-text="gameState.history.length - index"></span></span>
+                <span class="text-[var(--color-muted)]">Round <span x-text="round.roundNumber"></span></span>
                 <span class="font-bold text-white" x-text="round.average ? round.average : round.agreement.toUpperCase()"></span>
               </div>
             </template>

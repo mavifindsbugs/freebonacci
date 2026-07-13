@@ -9,6 +9,7 @@ export interface Player {
 }
 
 export interface RoundResult {
+  roundNumber: number;
   average: number | null;
   agreement: 'full' | 'close' | 'split';
   timestamp: number;
@@ -18,8 +19,8 @@ export interface GameState {
   players: Record<string, Player>;
   isRevealed: boolean;
   deck: 'fibonacci' | 'tshirt';
-  lastRound: RoundResult | null;
   history: RoundResult[];
+  roundCount: number;
 }
 
 const VALID_VOTES: Record<string, string[]> = {
@@ -66,8 +67,8 @@ export class PlanningPokerServer extends Server<Env> {
     players: {},
     isRevealed: false,
     deck: "fibonacci",
-    lastRound: null,
     history: [],
+    roundCount: 0,
   };
 
   private rateLimits = new Map<string, number[]>();
@@ -112,8 +113,8 @@ export class PlanningPokerServer extends Server<Env> {
         case "REVEAL": {
           BaseActionSchema.parse(data);
           this.gameState.isRevealed = true;
-          const result = this.computeRoundResult();
-          this.gameState.lastRound = result;
+          this.gameState.roundCount++;
+          const result = this.computeRoundResult(this.gameState.roundCount);
           
           this.gameState.history.unshift(result);
           
@@ -156,7 +157,7 @@ export class PlanningPokerServer extends Server<Env> {
     this.broadcast(JSON.stringify({ type: "STATE", state: this.gameState }));
   }
 
-  private computeRoundResult(): RoundResult {
+  private computeRoundResult(roundNumber: number): RoundResult {
     const votes: Record<string, string> = {};
     const numericVotes: number[] = [];
 
@@ -200,6 +201,7 @@ export class PlanningPokerServer extends Server<Env> {
     }
 
     return {
+      roundNumber,
       average,
       agreement,
       timestamp: Date.now()
