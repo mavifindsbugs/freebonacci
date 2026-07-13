@@ -244,25 +244,25 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col lg:flex-row my-8 md:my-12 gap-8 items-start">
+    <main class="flex-1 flex flex-row my-4 sm:my-8 md:my-12 gap-3 sm:gap-4 md:gap-8 items-start">
 
       <!-- Action Area (Right Sidebar on Desktop, Top on Mobile) -->
       <div
-        class="order-1 lg:order-2 w-full lg:w-80 flex-shrink-0 flex flex-col items-center gap-6 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-6 lg:p-8 shadow-xl lg:sticky lg:top-8 transition-all duration-300 mb-2 lg:mb-0">
+        class="order-2 w-[220px] sm:w-64 md:w-80 lg:w-96 flex-shrink-0 flex flex-col items-center gap-4 sm:gap-6 lg:gap-8 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl sticky top-4 md:top-8 transition-all duration-300">
 
         <!-- Stats Scoreboard (Always visible, changes state) -->
         <div
-          class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-4 grid gap-4 shadow-inner h-[90px] items-center"
+          class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-3 sm:p-4 grid gap-3 sm:gap-4 shadow-inner h-[70px] sm:h-[90px] items-center"
           :class="gameState.deck === 'fibonacci' ? 'grid-cols-2' : 'grid-cols-1'">
           <div class="text-center" x-show="gameState.deck === 'fibonacci'">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Average</span>
-            <span class="text-2xl font-bold transition-colors"
+            <span class="text-xl md:text-2xl font-bold transition-colors"
               :class="gameState.isRevealed ? 'text-[var(--color-text)]' : 'text-[var(--color-muted)]'"
               x-text="gameState.isRevealed && gameState.history[0]?.average ? gameState.history[0].average : '-.-'"></span>
           </div>
           <div class="text-center flex flex-col justify-center">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Agreement</span>
-            <span class="text-lg font-bold transition-colors" :class="!gameState.isRevealed ? 'text-[var(--color-muted)]' : {
+            <span class="text-base md:text-lg font-bold transition-colors" :class="!gameState.isRevealed ? 'text-[var(--color-muted)]' : {
                     'text-[var(--color-success)]': gameState.history[0]?.agreement === 'full',
                     'text-yellow-400': gameState.history[0]?.agreement === 'close',
                     'text-red-400': gameState.history[0]?.agreement === 'split'
@@ -273,10 +273,10 @@
 
         <div class="w-full flex justify-center">
           <button @click="revealVotes" x-show="!gameState.isRevealed" :disabled="voteCount === 0"
-            class="w-full bg-[var(--color-accent)] border border-transparent text-[var(--color-accent-text)] font-semibold px-6 py-4 rounded-xl shadow-lg hover:bg-[var(--color-accent-hover)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">Reveal
+            class="w-full bg-[var(--color-accent)] border border-transparent text-[var(--color-accent-text)] font-medium sm:font-semibold text-sm lg:text-base px-4 md:px-5 lg:px-6 py-2.5 md:py-3 lg:py-4 rounded-lg sm:rounded-xl shadow-lg hover:bg-[var(--color-accent-hover)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">Reveal
             Cards</button>
           <button @click="resetTable" x-show="gameState.isRevealed"
-            class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-raised)] text-[var(--color-text)] font-semibold px-6 py-4 rounded-xl shadow-sm transition-all">Start
+            class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-raised)] text-[var(--color-text)] font-medium sm:font-semibold text-sm lg:text-base px-4 md:px-5 lg:px-6 py-2.5 md:py-3 lg:py-4 rounded-lg sm:rounded-xl shadow-sm transition-all">Start
             New Round</button>
         </div>
 
@@ -288,7 +288,7 @@
 
         <!-- Round History -->
         <div
-          class="w-full border-t border-[var(--color-surface-border)] pt-4 mt-2 flex flex-col gap-2 h-[150px] overflow-y-auto">
+          class="w-full border-t border-[var(--color-surface-border)] pt-3 sm:pt-4 mt-2 flex flex-col gap-2 h-[100px] sm:h-[150px] overflow-y-auto">
           <h3 class="text-xs uppercase tracking-wider text-[var(--color-muted)] mb-1">Previous Rounds</h3>
 
           <div x-show="gameState.history.length === 0"
@@ -310,16 +310,16 @@
       </div>
 
       <!-- Player Grid (Left on Desktop, Bottom on Mobile) -->
-      <div class="order-2 lg:order-1 flex-1 w-full flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-5">
+      <div class="order-1 flex-1 w-full flex flex-wrap justify-center sm:justify-start content-start gap-4 sm:gap-5">
         <template x-for="(player, id) in gameState.players" :key="id">
           <div
-            class="w-24 sm:w-28 lg:w-32 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center aspect-[3/4] relative transition-all duration-300 shadow-lg"
+            class="w-20 sm:w-24 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center aspect-[3/4] relative transition-all duration-300 shadow-lg"
             :class="{ 'ring-2 ring-[var(--color-success)]/50': player.vote !== null && !gameState.isRevealed }">
 
             <div class="flex-1 flex items-center justify-center w-full">
               <!-- Waiting for vote -->
               <div x-show="player.vote === null" class="text-[var(--color-muted)] flex flex-col items-center gap-2">
-                <svg class="animate-spin h-6 w-6 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none"
+                <svg class="animate-spin h-5 w-5 sm:h-6 sm:w-6 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none"
                   viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor"
@@ -330,7 +330,7 @@
 
               <!-- Voted, hidden -->
               <div x-show="player.vote !== null && !gameState.isRevealed" class="text-[var(--color-success)]">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                <svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -339,18 +339,18 @@
 
               <!-- Revealed -->
               <div x-show="player.vote !== null && gameState.isRevealed" x-text="player.vote"
-                class="text-4xl font-bold text-[var(--color-text)] transition-all duration-500 scale-100">
+                class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)] transition-all duration-500 scale-100">
               </div>
             </div>
 
             <div class="mt-auto pt-3 border-t border-[var(--color-surface-border)] w-full text-center">
-              <span class="text-sm font-medium text-[var(--color-muted)] truncate block px-2"
+              <span class="text-xs sm:text-sm font-medium text-[var(--color-muted)] truncate block px-2"
                 x-text="player.name"></span>
             </div>
           </div>
         </template>
         <!-- Spacer for fixed footer so last players aren't hidden -->
-        <div class="w-full h-[220px] lg:h-[200px] flex-shrink-0"></div>
+        <div class="w-full h-[220px] md:h-[200px] flex-shrink-0"></div>
       </div>
     </main>
 
@@ -365,7 +365,7 @@
       <div class="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-5xl mx-auto">
         <template x-for="card in activeDeckCards" :key="card">
           <button @click="castVote(card)" :disabled="gameState.isRevealed"
-            class="w-16 sm:w-20 aspect-[2/3] bg-[var(--color-surface-raised)] border-2 hover:-translate-y-2 rounded-xl font-bold text-xl sm:text-2xl flex items-center justify-center shadow-lg transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            class="w-12 sm:w-14 md:w-16 lg:w-20 aspect-[2/3] bg-[var(--color-surface-raised)] border-2 hover:-translate-y-2 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg md:text-xl lg:text-2xl flex items-center justify-center shadow-lg transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             :class="myVote === card ? 'border-[var(--color-accent)] text-[var(--color-accent)] bg-[var(--color-accent)]/10' : 'border-[var(--color-surface-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]/50'"
             x-text="card"></button>
         </template>
@@ -373,12 +373,15 @@
     </div>
 
     <!-- Copyright & Links -->
-    <div class="w-full py-3 text-center text-xs text-[var(--color-muted)] font-medium flex justify-center items-center">
-      <span>&copy;&nbsp;<span x-text="new Date().getFullYear()"></span>&nbsp;<a href="https://github.com/mavifindsbugs"
-          class="hover:text-[var(--color-text)] transition-colors">mavifindsbugs</a></span>
-      <span class="mx-2 opacity-30">|</span>
-      <a href="https://github.com/mavifindsbugs/freebonacci" target="_blank" rel="noopener noreferrer"
-        class="hover:text-[var(--color-text)] transition-colors flex items-center gap-1.5">
+    <div class="w-full py-3 text-xs text-[var(--color-muted)] font-medium flex items-center justify-center">
+      <div class="flex-1 flex justify-end">
+        <span>&copy;&nbsp;<span x-text="new Date().getFullYear()"></span>&nbsp;<a href="https://github.com/mavifindsbugs"
+            class="hover:text-[var(--color-text)] transition-colors">mavifindsbugs</a></span>
+      </div>
+      <span class="mx-2 opacity-30 flex-shrink-0">|</span>
+      <div class="flex-1 flex justify-start">
+        <a href="https://github.com/mavifindsbugs/freebonacci" target="_blank" rel="noopener noreferrer"
+          class="hover:text-[var(--color-text)] transition-colors flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path fill-rule="evenodd"
             d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
