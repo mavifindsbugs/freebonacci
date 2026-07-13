@@ -80,8 +80,13 @@ export class PlanningPokerServer extends Server<Env> {
     }
   }
 
-  onConnect(connection: Connection, ctx: any) {
+  async onConnect(connection: Connection, ctx: any) {
     connection.send(JSON.stringify({ type: "STATE", state: this.gameState }));
+    await this.setCleanupAlarm();
+  }
+
+  private async setCleanupAlarm() {
+    await this.ctx.storage.setAlarm(Date.now() + 60 * 60 * 1000); // 1 hour
   }
 
   async onMessage(sender: Connection, message: string) {
@@ -154,6 +159,7 @@ export class PlanningPokerServer extends Server<Env> {
 
       this.broadcast(JSON.stringify({ type: "STATE", state: this.gameState }));
       await this.ctx.storage.put("gameState", this.gameState);
+      await this.setCleanupAlarm();
     } catch (err) {
       console.error("Failed to process message:", err);
     }
@@ -164,6 +170,18 @@ export class PlanningPokerServer extends Server<Env> {
     this.rateLimits.delete(connection.id);
     this.broadcast(JSON.stringify({ type: "STATE", state: this.gameState }));
     await this.ctx.storage.put("gameState", this.gameState);
+    await this.setCleanupAlarm();
+  }
+
+  async onAlarm() {
+    await this.ctx.storage.deleteAll();
+    this.gameState = {
+      players: {},
+      isRevealed: false,
+      deck: "fibonacci",
+      history: [],
+      roundCount: 0,
+    };
   }
 
   private computeRoundResult(roundNumber: number): RoundResult {
