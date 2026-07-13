@@ -3,7 +3,7 @@ main = "src/server.ts"
 compatibility_date = "2025-01-01"
 
 routes = [
-  { pattern = "api.planningpoker.mavz.eu", custom_domain = true }
+  { pattern = "api.freebonacci.mavz.eu", custom_domain = true }
 ]
 
 [[durable_objects.bindings]]
@@ -19,4 +19,4 @@ tag = "v2"
 renamed_classes = [{from = "PokerServer", to = "PlanningPokerServer"}]
 
 [vars]
-ALLOWED_ORIGINS = "https://planningpoker.mavz.eu"
+ALLOWED_ORIGINS = "https://freebonacci.mavz.eu"

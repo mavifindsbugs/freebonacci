@@ -1,136 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Planning Poker</title>
-  
+  <title>freebonacci</title>
+  <meta name="description" content="because planning poker shouldn't be that complicated.">
+
+  <!-- Open Graph / Facebook / iMessage -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="freebonacci">
+  <meta property="og:description" content="because planning poker shouldn't be that complicated.">
+  <meta property="og:image" content="/logo.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="freebonacci">
+  <meta name="twitter:description" content="because planning poker shouldn't be that complicated.">
+  <meta name="twitter:image" content="/logo.png">
+
+  <!-- Apple Touch & Theme Color -->
+  <link rel="apple-touch-icon" href="/logo.png">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <style>
-    [x-cloak] { display: none !important; }
+    [x-cloak] {
+      display: none !important;
+    }
   </style>
   <link rel="stylesheet" href="/src/style.css">
   <script type="module" src="/src/main.ts"></script>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col" x-data="pokerApp">
+
+<body class="font-sans antialiased min-h-screen flex flex-col" x-data="pokerApp"
+  @cookie-collected.window="collectedCookies++">
 
   <!-- Name Modal -->
-  <div x-show="roomId && isNameModalOpen" x-cloak class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] p-8 rounded-2xl shadow-2xl max-w-sm w-full mx-4">
-      <h2 class="text-2xl font-bold mb-2">Join Session</h2>
+  <div x-show="roomId && isNameModalOpen" x-cloak
+    class="fixed inset-0 bg-[var(--color-backdrop)] backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-200">
+    <div
+      class="bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] p-8 rounded-2xl shadow-2xl max-w-sm w-full mx-4">
+      <h2 class="text-2xl font-bold mb-2 text-[var(--color-text)]">Join Session</h2>
       <p class="text-[var(--color-muted)] text-sm mb-6">Enter your name to join the estimation room.</p>
-      <input type="text" x-model="playerName" maxlength="16" @keydown.enter="submitName" class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] text-white" placeholder="Your Name" autofocus>
-      <button @click="submitName" class="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white font-medium py-3 rounded-xl transition duration-200">Join Room</button>
+      <div class="relative mb-4">
+        <div class="absolute -top-5 right-1 flex justify-end">
+          <span x-show="playerNameError" x-transition x-cloak
+            class="text-xs text-[var(--color-vibrant-coral)] font-medium" x-text="playerNameError"></span>
+        </div>
+        <input type="text" x-model="playerName" maxlength="16" @keydown.enter="submitName" @input="playerNameError = ''"
+          :class="playerNameError ? 'animate-shake border-[var(--color-vibrant-coral)] focus:ring-[var(--color-vibrant-coral)]' : 'border-[var(--color-surface-border)] focus:ring-[var(--color-accent)]'"
+          class="w-full bg-[var(--color-surface)] border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 text-[var(--color-text)] placeholder-[var(--color-muted)] transition-colors"
+          placeholder="Your Name" autofocus>
+      </div>
+      <button @click="submitName"
+        class="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-accent-text)] font-medium py-3 rounded-lg transition-colors shadow-sm">Join
+        Room</button>
     </div>
   </div>
 
   <!-- Landing Page -->
-  <div x-show="!roomId" x-cloak class="flex-1 flex flex-col items-center justify-center p-4 max-w-md mx-auto w-full">
-    <div class="text-center mb-8">
-      <h1 class="text-5xl font-bold tracking-tight text-[var(--color-accent)] mb-4">🃏 Poker</h1>
-      <p class="text-[var(--color-muted)] text-lg">Real-time agile estimation</p>
+  <div x-show="!roomId" x-cloak
+    class="relative flex-1 flex flex-col items-center justify-center p-4 min-h-screen w-full overflow-hidden">
+
+    <!-- Fibonacci Background Canvas -->
+    <canvas id="fib-canvas" class="absolute inset-0 w-full h-full"></canvas>
+
+    <button @click="toggleTheme"
+      class="absolute top-4 right-4 p-2 rounded-full hover:bg-[var(--color-surface-raised)] transition-colors text-[var(--color-text)]">
+      <svg x-show="!darkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+      </svg>
+      <svg x-show="darkMode" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+        </path>
+      </svg>
+    </button>
+
+    <div class="z-10 text-center mb-12 w-full max-w-xl mt-8 md:mt-0">
+      <div class="inline-flex items-center justify-center gap-4 mb-3">
+        <img src="/logo.png" alt="freebonacci logo" class="w-16 h-16 object-contain shadow-sm transition-all"
+          :class="darkMode ? 'invert opacity-80' : ''">
+        <h1 class="text-5xl font-bold tracking-tight text-[var(--color-text)]">
+          freebonacci</h1>
+      </div>
+      <p class="text-lg text-[var(--color-muted)] font-medium mb-8">because planning poker shouldn't be that
+        complicated.</p>
+
+      <!-- Feature Tags -->
+      <div class="flex flex-wrap justify-center gap-x-3 gap-y-2 text-xs font-medium mb-10">
+        <span
+          class="px-2 py-1 rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-raised)] text-[var(--color-text)] flex items-center gap-1.5"><svg
+            class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg> zero costs</span>
+        <span
+          class="px-2 py-1 rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-raised)] text-[var(--color-text)] flex items-center gap-1.5"><svg
+            class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg> zero ads</span>
+        <span
+          class="px-2 py-1 rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-raised)] text-[var(--color-text)] flex items-center gap-1.5"><svg
+            class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg> <span x-text="collectedCookies === 0 ? 'zero cookies' : collectedCookies + ' cookies'"></span></span>
+        <span
+          class="px-2 py-1 rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-raised)] text-[var(--color-text)] flex items-center gap-1.5"><svg
+            class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg> maximum simplicity</span>
+      </div>
+
+      <!-- Hilarious Fake Reviews -->
+      <div class="w-full max-w-xl overflow-hidden relative" x-data="{
+        reviews: [
+          '“With freebonacci I doubled my sprint velocity, highly recommend!” — Agile Andy',
+          '“I no longer cry during backlog refinement.” — Scrum Master Sarah',
+          '“It’s literally just planning poker, but I love it.” — Honest Helen',
+          '“My story points are finally Fibonacci numbers again.” — Developer Daniel',
+          '“This app cured my imposter syndrome.” — Junior Dev',
+          '“10/10 would estimate again.” — Product Owner Paul'
+        ]
+      }">
+        <div class="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-[var(--color-surface)] to-transparent z-10">
+        </div>
+        <div class="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[var(--color-surface)] to-transparent z-10">
+        </div>
+        <div
+          class="flex whitespace-nowrap animate-marquee w-max text-xs text-[var(--color-muted)] font-medium italic hover:[animation-play-state:paused]">
+          <template x-for="i in 2">
+            <div class="flex">
+              <template x-for="review in reviews">
+                <span class="flex items-center pr-8">
+                  <span x-text="review"></span>
+                </span>
+              </template>
+            </div>
+          </template>
+        </div>
+      </div>
     </div>
 
-    <div class="bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] p-8 rounded-2xl shadow-2xl w-full">
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-2">Your Name</label>
-        <input type="text" x-model="playerName" maxlength="16" class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] text-white placeholder-[var(--color-muted)]" placeholder="John Doe">
+    <!-- Main Card -->
+    <div id="main-card"
+      class="z-10 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] p-8 rounded-2xl shadow-xl w-full max-w-md mb-12">
+
+      <div class="mb-5 relative">
+        <div class="flex justify-between items-center mb-2">
+          <label class="block text-sm font-medium text-[var(--color-muted)]">Your Name</label>
+          <span x-show="playerNameError" x-transition x-cloak
+            class="text-xs text-[var(--color-vibrant-coral)] font-medium" x-text="playerNameError"></span>
+        </div>
+        <input type="text" x-model="playerName" maxlength="16" @input="playerNameError = ''"
+          :class="playerNameError ? 'animate-shake border-[var(--color-vibrant-coral)] focus:ring-[var(--color-vibrant-coral)]' : 'border-[var(--color-surface-border)] focus:ring-[var(--color-accent)]'"
+          class="w-full bg-[var(--color-surface)] border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 text-[var(--color-text)] placeholder-[var(--color-muted)] transition-colors"
+          placeholder="Jane Doe">
       </div>
-      
-      <button @click="createRoom" class="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white font-semibold py-3 rounded-xl transition duration-200 mb-8 shadow-lg">Create New Room</button>
+
+      <button @click="createRoom"
+        class="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-accent-text)] font-semibold py-3 rounded-lg transition-colors mb-8 shadow-sm flex items-center justify-center gap-2">
+        Create New Room
+      </button>
 
       <div class="relative flex items-center justify-center mb-8">
         <div class="border-t border-[var(--color-surface-border)] w-full"></div>
-        <span class="bg-[var(--color-surface-raised)] px-4 text-sm text-[var(--color-muted)] absolute">OR JOIN EXISTING</span>
+        <span
+          class="bg-[var(--color-surface-raised)] px-4 text-xs font-semibold text-[var(--color-muted)] absolute uppercase tracking-wider">or
+          join existing</span>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-[var(--color-muted)] mb-2">Room ID</label>
-        <input type="text" x-model="joinRoomId" @keydown.enter="joinRoom" class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] text-white font-mono text-sm placeholder-[var(--color-muted)]" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-        <button @click="joinRoom" class="w-full bg-[var(--color-surface)] hover:bg-[var(--color-surface-border)] border border-[var(--color-surface-border)] text-white font-semibold py-3 rounded-xl transition duration-200">Join Room</button>
+      <div class="space-y-4">
+        <div class="relative">
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-sm font-medium text-[var(--color-muted)]">Room ID</label>
+            <span x-show="joinRoomIdError" x-transition x-cloak
+              class="text-xs text-[var(--color-vibrant-coral)] font-medium" x-text="joinRoomIdError"></span>
+          </div>
+          <input type="text" x-model="joinRoomId" @keydown.enter="joinRoom" @input="joinRoomIdError = ''"
+            :class="joinRoomIdError ? 'animate-shake border-[var(--color-vibrant-coral)] focus:ring-[var(--color-vibrant-coral)]' : 'border-[var(--color-surface-border)] focus:ring-[var(--color-accent)]'"
+            class="w-full bg-[var(--color-surface)] border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 text-[var(--color-text)] font-mono text-sm placeholder-[var(--color-muted)] transition-colors"
+            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+        </div>
+        <button @click="joinRoom"
+          class="w-full bg-[var(--color-surface)] hover:bg-[var(--color-surface-border)] border border-[var(--color-surface-border)] text-[var(--color-text)] font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+          Join Room
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Main App -->
   <div class="flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 md:p-6" x-show="roomId" x-cloak>
-    
+
     <!-- Header -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 border-b border-[var(--color-surface-border)] gap-4">
+    <header
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 border-b border-[var(--color-surface-border)] gap-4">
       <div class="flex items-center gap-3">
-        <a href="/" class="text-xl font-bold tracking-tight text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition">🃏 Poker</a>
+        <a href="/"
+          class="text-xl font-bold tracking-tight text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors flex items-center gap-3">
+          <img src="/logo.png" alt="logo" class="w-8 h-8 object-contain shadow-sm transition-all"
+            :class="darkMode ? 'invert opacity-80' : ''">
+          freebonacci
+        </a>
       </div>
-      
+
       <div class="flex items-center gap-3">
-        <select 
-          x-model="gameState.deck" 
-          @change="setDeck($event.target.value)"
-          :disabled="voteCount > 0"
+        <select x-model="gameState.deck" @change="setDeck($event.target.value)" :disabled="voteCount > 0"
           :class="{ 'opacity-50 cursor-not-allowed': voteCount > 0 }"
-          class="bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] transition-all"
-        >
+          class="h-[38px] bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] text-sm rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] transition-all">
           <option value="fibonacci">Fibonacci</option>
           <option value="tshirt">T-Shirt</option>
         </select>
-        <button @click="shareRoom" class="text-sm bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-border)] border border-[var(--color-surface-border)] px-3 py-2 rounded-lg font-medium transition flex justify-center items-center gap-2 whitespace-nowrap min-w-[110px]">
-          <span x-show="!copied">📋 Share Link</span>
-          <span x-show="copied" x-cloak class="text-[var(--color-success)]">✅ Copied!</span>
+        <div class="relative flex items-center">
+          <button @click="shareRoom"
+            class="h-[38px] text-sm bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-border)] border border-[var(--color-surface-border)] px-4 rounded-lg font-medium transition flex justify-center items-center whitespace-nowrap min-w-[90px]">
+            <span x-text="copied ? 'Copied!' : 'Share'"></span>
+          </button>
+          <div x-show="copied" x-transition x-cloak
+            class="absolute bottom-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 text-sm text-[var(--color-success)] font-medium whitespace-nowrap pointer-events-none">
+            Link copied to clipboard
+          </div>
+        </div>
+        <button @click="toggleTheme"
+          class="p-2 rounded-full hover:bg-[var(--color-surface-raised)] border border-transparent hover:border-[var(--color-surface-border)] transition-colors text-[var(--color-text)]">
+          <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+          <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
         </button>
       </div>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col lg:flex-row my-8 md:my-12 gap-8 items-start">
-      
+
       <!-- Action Area (Right Sidebar on Desktop, Top on Mobile) -->
-      <div class="order-1 lg:order-2 w-full lg:w-80 flex-shrink-0 flex flex-col items-center gap-6 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-6 lg:p-8 shadow-xl lg:sticky lg:top-8 transition-all duration-300 mb-2 lg:mb-0">
-        
+      <div
+        class="order-1 lg:order-2 w-full lg:w-80 flex-shrink-0 flex flex-col items-center gap-6 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-6 lg:p-8 shadow-xl lg:sticky lg:top-8 transition-all duration-300 mb-2 lg:mb-0">
+
         <!-- Stats Scoreboard (Always visible, changes state) -->
-        <div class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-4 grid gap-4 shadow-inner h-[90px] items-center"
-             :class="gameState.deck === 'fibonacci' ? 'grid-cols-2' : 'grid-cols-1'">
+        <div
+          class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-4 grid gap-4 shadow-inner h-[90px] items-center"
+          :class="gameState.deck === 'fibonacci' ? 'grid-cols-2' : 'grid-cols-1'">
           <div class="text-center" x-show="gameState.deck === 'fibonacci'">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Average</span>
-            <span class="text-2xl font-bold transition-colors" 
-                  :class="gameState.isRevealed ? 'text-white' : 'text-[var(--color-surface-border)]'"
-                  x-text="gameState.isRevealed && gameState.history[0]?.average ? gameState.history[0].average : '-.-'"></span>
+            <span class="text-2xl font-bold transition-colors"
+              :class="gameState.isRevealed ? 'text-[var(--color-text)]' : 'text-[var(--color-muted)]'"
+              x-text="gameState.isRevealed && gameState.history[0]?.average ? gameState.history[0].average : '-.-'"></span>
           </div>
           <div class="text-center flex flex-col justify-center">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Agreement</span>
-            <span class="text-lg font-bold transition-colors" 
-                  :class="!gameState.isRevealed ? 'text-[var(--color-surface-border)]' : {
+            <span class="text-lg font-bold transition-colors" :class="!gameState.isRevealed ? 'text-[var(--color-muted)]' : {
                     'text-[var(--color-success)]': gameState.history[0]?.agreement === 'full',
                     'text-yellow-400': gameState.history[0]?.agreement === 'close',
                     'text-red-400': gameState.history[0]?.agreement === 'split'
                   }"
-                  x-text="gameState.isRevealed && gameState.history[0] ? gameState.history[0].agreement.toUpperCase() : '---'"></span>
+              x-text="gameState.isRevealed && gameState.history[0] ? gameState.history[0].agreement.toUpperCase() : '---'"></span>
           </div>
         </div>
 
         <div class="w-full flex justify-center">
-          <button @click="revealVotes" x-show="!gameState.isRevealed" :disabled="voteCount === 0" class="w-full bg-[var(--color-accent)] border border-transparent text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:bg-[var(--color-accent-hover)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">Reveal Cards</button>
-          <button @click="resetTable" x-show="gameState.isRevealed" class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-border)] text-white font-semibold px-6 py-4 rounded-xl shadow-lg transition-all">Start New Round</button>
+          <button @click="revealVotes" x-show="!gameState.isRevealed" :disabled="voteCount === 0"
+            class="w-full bg-[var(--color-accent)] border border-transparent text-[var(--color-accent-text)] font-semibold px-6 py-4 rounded-xl shadow-lg hover:bg-[var(--color-accent-hover)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">Reveal
+            Cards</button>
+          <button @click="resetTable" x-show="gameState.isRevealed"
+            class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-raised)] text-[var(--color-text)] font-semibold px-6 py-4 rounded-xl shadow-sm transition-all">Start
+            New Round</button>
         </div>
 
         <p class="text-[var(--color-muted)] text-sm transition-colors">
-          <span class="font-bold" :class="gameState.isRevealed ? 'text-[var(--color-muted)]' : 'text-white'" x-text="voteCount"></span> / <span x-text="eligibleCount"></span> voted
+          <span class="font-bold"
+            :class="gameState.isRevealed ? 'text-[var(--color-muted)]' : 'text-[var(--color-text)]'"
+            x-text="voteCount"></span> / <span x-text="eligibleCount"></span> voted
         </p>
 
         <!-- Round History -->
-        <div class="w-full border-t border-[var(--color-surface-border)] pt-4 mt-2 flex flex-col gap-2 h-[150px] overflow-y-auto">
+        <div
+          class="w-full border-t border-[var(--color-surface-border)] pt-4 mt-2 flex flex-col gap-2 h-[150px] overflow-y-auto">
           <h3 class="text-xs uppercase tracking-wider text-[var(--color-muted)] mb-1">Previous Rounds</h3>
-          
-          <div x-show="gameState.history.length === 0" class="text-sm text-[var(--color-muted)] italic text-center py-4">
+
+          <div x-show="gameState.history.length === 0"
+            class="text-sm text-[var(--color-muted)] italic text-center py-4">
             No rounds played yet.
           </div>
-          
+
           <div class="flex flex-col gap-1 pb-2">
             <template x-for="(round, index) in gameState.history" :key="round.timestamp">
-              <div class="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-md px-2 py-1.5 text-xs shadow-sm">
+              <div
+                class="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-md px-2 py-1.5 text-xs shadow-sm">
                 <span class="text-[var(--color-muted)]">Round <span x-text="round.roundNumber"></span></span>
-                <span class="font-bold text-white" x-text="round.average ? round.average : round.agreement.toUpperCase()"></span>
+                <span class="font-bold text-[var(--color-text)]"
+                  x-text="round.average ? round.average : round.agreement.toUpperCase()"></span>
               </div>
             </template>
           </div>
@@ -140,51 +312,83 @@
       <!-- Player Grid (Left on Desktop, Bottom on Mobile) -->
       <div class="order-2 lg:order-1 flex-1 w-full flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-5">
         <template x-for="(player, id) in gameState.players" :key="id">
-          <div class="w-24 sm:w-28 lg:w-32 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center aspect-[3/4] relative transition-all duration-300 shadow-lg"
-               :class="{ 'ring-2 ring-[var(--color-success)]/50': player.vote !== null && !gameState.isRevealed }">
-            
+          <div
+            class="w-24 sm:w-28 lg:w-32 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center aspect-[3/4] relative transition-all duration-300 shadow-lg"
+            :class="{ 'ring-2 ring-[var(--color-success)]/50': player.vote !== null && !gameState.isRevealed }">
+
             <div class="flex-1 flex items-center justify-center w-full">
               <!-- Waiting for vote -->
               <div x-show="player.vote === null" class="text-[var(--color-muted)] flex flex-col items-center gap-2">
-                <svg class="animate-spin h-6 w-6 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <svg class="animate-spin h-6 w-6 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
               </div>
-              
+
               <!-- Voted, hidden -->
               <div x-show="player.vote !== null && !gameState.isRevealed" class="text-[var(--color-success)]">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
               </div>
-              
+
               <!-- Revealed -->
-              <div x-show="player.vote !== null && gameState.isRevealed" 
-                   x-text="player.vote" 
-                   class="text-4xl font-bold text-white transition-all duration-500 scale-100">
+              <div x-show="player.vote !== null && gameState.isRevealed" x-text="player.vote"
+                class="text-4xl font-bold text-[var(--color-text)] transition-all duration-500 scale-100">
               </div>
             </div>
 
             <div class="mt-auto pt-3 border-t border-[var(--color-surface-border)] w-full text-center">
-              <span class="text-sm font-medium text-[var(--color-muted)] truncate block px-2" x-text="player.name"></span>
+              <span class="text-sm font-medium text-[var(--color-muted)] truncate block px-2"
+                x-text="player.name"></span>
             </div>
           </div>
         </template>
         <!-- Spacer for fixed footer so last players aren't hidden -->
-        <div class="w-full h-[200px] lg:h-[180px] flex-shrink-0"></div>
+        <div class="w-full h-[220px] lg:h-[200px] flex-shrink-0"></div>
       </div>
     </main>
 
-    <!-- Footer / Deck -->
-    <footer class="fixed bottom-0 left-0 w-full pt-4 pb-6 px-4 bg-black/60 backdrop-blur-lg border-t border-[var(--color-surface-border)] z-40">
+  </div>
+
+  <!-- Global Footer -->
+  <footer
+    class="fixed bottom-0 left-0 w-full bg-[var(--color-backdrop)] backdrop-blur-lg border-t border-[var(--color-surface-border)] z-40 transition-colors flex flex-col items-center">
+
+    <!-- Deck (Only visible in room) -->
+    <div x-show="roomId" x-cloak class="w-full pt-4 pb-4 px-4">
       <div class="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-5xl mx-auto">
         <template x-for="card in activeDeckCards" :key="card">
-          <button 
-            @click="castVote(card)" 
-            :disabled="gameState.isRevealed"
+          <button @click="castVote(card)" :disabled="gameState.isRevealed"
             class="w-16 sm:w-20 aspect-[2/3] bg-[var(--color-surface-raised)] border-2 hover:-translate-y-2 rounded-xl font-bold text-xl sm:text-2xl flex items-center justify-center shadow-lg transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-            :class="myVote === card ? 'border-[var(--color-accent)] text-[var(--color-accent)] bg-[var(--color-accent)]/10' : 'border-[var(--color-surface-border)] text-white hover:border-[var(--color-accent)]/50'"
+            :class="myVote === card ? 'border-[var(--color-accent)] text-[var(--color-accent)] bg-[var(--color-accent)]/10' : 'border-[var(--color-surface-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]/50'"
             x-text="card"></button>
         </template>
       </div>
-    </footer>
-  </div>
+    </div>
+
+    <!-- Copyright & Links -->
+    <div class="w-full py-3 text-center text-xs text-[var(--color-muted)] font-medium flex justify-center items-center">
+      <span>&copy;&nbsp;<span x-text="new Date().getFullYear()"></span>&nbsp;<a href="https://github.com/mavifindsbugs"
+          class="hover:text-[var(--color-text)] transition-colors">mavifindsbugs</a></span>
+      <span class="mx-2 opacity-30">|</span>
+      <a href="https://github.com/mavifindsbugs/freebonacci" target="_blank" rel="noopener noreferrer"
+        class="hover:text-[var(--color-text)] transition-colors flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+            clip-rule="evenodd" />
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </footer>
 
 </body>
+
 </html>
