@@ -1,6 +1,7 @@
 **node_modules
 **.wrangler
 **.env
+**.env.production
 **.partykit
 **.dev.vars
 **/dist

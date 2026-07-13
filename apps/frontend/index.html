@@ -71,18 +71,7 @@
     <!-- Fibonacci Background Canvas -->
     <canvas id="fib-canvas" class="absolute inset-0 w-full h-full"></canvas>
 
-    <button @click="toggleTheme"
-      class="absolute top-4 right-4 p-2 rounded-full hover:bg-[var(--color-surface-raised)] transition-colors text-[var(--color-text)]">
-      <svg x-show="!darkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-      </svg>
-      <svg x-show="darkMode" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-        </path>
-      </svg>
-    </button>
+
 
     <div class="z-10 text-center mb-12 w-full max-w-xl mt-8 md:mt-0">
       <div class="inline-flex items-center justify-center gap-4 mb-3">
@@ -110,7 +99,7 @@
           class="px-2 py-1 rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-raised)] text-[var(--color-text)] flex items-center gap-1.5"><svg
             class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg> <span x-text="collectedCookies === 0 ? 'zero cookies' : collectedCookies + ' cookies'"></span></span>
+          </svg> <span x-text="collectedCookies === 0 ? 'zero cookies' : (collectedCookies === 1 ? '1 cookie' : collectedCookies + ' cookies')"></span></span>
         <span
           class="px-2 py-1 rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-raised)] text-[var(--color-text)] flex items-center gap-1.5"><svg
             class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +139,7 @@
 
     <!-- Main Card -->
     <div id="main-card"
-      class="z-10 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] p-8 rounded-2xl shadow-xl w-full max-w-md mb-12">
+      class="z-10 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] p-8 rounded-2xl shadow-xl w-full max-w-sm mb-12">
 
       <div class="mb-5 relative">
         <div class="flex justify-between items-center mb-2">
@@ -228,31 +217,20 @@
             Link copied to clipboard
           </div>
         </div>
-        <button @click="toggleTheme"
-          class="p-2 rounded-full hover:bg-[var(--color-surface-raised)] border border-transparent hover:border-[var(--color-surface-border)] transition-colors text-[var(--color-text)]">
-          <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-          </svg>
-          <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-            </path>
-          </svg>
-        </button>
+
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-row my-4 sm:my-8 md:my-12 gap-3 sm:gap-4 md:gap-8 items-start">
+    <main class="flex-1 flex flex-col md:flex-row mt-4 sm:mt-8 md:mt-12 mb-[220px] md:mb-[200px] gap-6 sm:gap-8 items-center md:items-start w-full">
 
       <!-- Action Area (Right Sidebar on Desktop, Top on Mobile) -->
       <div
-        class="order-2 w-[220px] sm:w-64 md:w-80 lg:w-96 flex-shrink-0 flex flex-col items-center gap-4 sm:gap-6 lg:gap-8 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl sticky top-4 md:top-8 transition-all duration-300">
+        class="order-first md:order-2 w-full max-w-xs md:max-w-none md:w-64 lg:w-80 flex-shrink-0 flex flex-col items-center gap-4 sm:gap-5 lg:gap-6 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-2xl p-4 sm:p-5 lg:p-6 shadow-xl relative md:sticky top-4 md:top-8 transition-all duration-300">
 
         <!-- Stats Scoreboard (Always visible, changes state) -->
         <div
-          class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-3 sm:p-4 grid gap-3 sm:gap-4 shadow-inner h-[70px] sm:h-[90px] items-center"
+          class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-3 sm:p-4 grid gap-3 sm:gap-4 shadow-inner h-[60px] sm:h-[76px] items-center"
           :class="gameState.deck === 'fibonacci' ? 'grid-cols-2' : 'grid-cols-1'">
           <div class="text-center" x-show="gameState.deck === 'fibonacci'">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Average</span>
@@ -288,7 +266,7 @@
 
         <!-- Round History -->
         <div
-          class="w-full border-t border-[var(--color-surface-border)] pt-3 sm:pt-4 mt-2 flex flex-col gap-2 h-[100px] sm:h-[150px] overflow-y-auto">
+          class="w-full border-t border-[var(--color-surface-border)] pt-3 sm:pt-4 mt-2 flex flex-col gap-2 h-[127px] sm:h-[147px] overflow-y-auto">
           <h3 class="text-xs uppercase tracking-wider text-[var(--color-muted)] mb-1">Previous Rounds</h3>
 
           <div x-show="gameState.history.length === 0"
@@ -349,8 +327,7 @@
             </div>
           </div>
         </template>
-        <!-- Spacer for fixed footer so last players aren't hidden -->
-        <div class="w-full h-[220px] md:h-[200px] flex-shrink-0"></div>
+
       </div>
     </main>
 
@@ -373,7 +350,7 @@
     </div>
 
     <!-- Copyright & Links -->
-    <div class="w-full py-3 text-xs text-[var(--color-muted)] font-medium flex items-center justify-center">
+    <div class="w-full py-3 text-xs text-[var(--color-muted)] font-medium flex items-center justify-center relative">
       <div class="flex-1 flex justify-end">
         <span>&copy;&nbsp;<span x-text="new Date().getFullYear()"></span>&nbsp;<a href="https://github.com/mavifindsbugs"
             class="hover:text-[var(--color-text)] transition-colors">mavifindsbugs</a></span>
@@ -389,6 +366,20 @@
         </svg>
         GitHub
       </a>
+      </div>
+      
+      <button @click="toggleTheme"
+        class="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-[var(--color-surface-raised)] transition-colors text-[var(--color-text)]">
+        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+        <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+          </path>
+        </svg>
+      </button>
     </div>
   </footer>
 

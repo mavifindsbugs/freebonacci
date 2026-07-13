@@ -223,9 +223,13 @@ function initFibonacciCanvas() {
     opacity: number;
     isCookie?: boolean;
     isCollected?: boolean;
+    isConfetti?: boolean;
+    color?: string;
+    angle?: number;
+    spin?: number;
   }
 
-  const particles: Particle[] = [];
+  let particles: Particle[] = [];
   const numParticles = 50;
 
   for (let i = 0; i < numParticles; i++) {
@@ -255,6 +259,28 @@ function initFibonacciCanvas() {
     });
   }
 
+  let localCollectedCookies = 0;
+
+  function triggerConfetti() {
+    const colors = ['#1982c4', '#ff595e', '#ffca3a', '#8ac926', '#6a4c93', '#f15bb5', '#00bbf9', '#00f5d4'];
+    for (let i = 0; i < 150; i++) {
+      const isLeft = i % 2 === 0;
+      particles.push({
+        x: isLeft ? -20 : width + 20,
+        y: height,
+        vx: (isLeft ? 1 : -1) * (Math.random() * 15 + 5),
+        vy: -(Math.random() * 20 + 10),
+        text: '',
+        size: Math.random() * 10 + 6,
+        opacity: 1,
+        isConfetti: true,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.4,
+      });
+    }
+  }
+
   window.addEventListener('click', (e) => {
     if (canvas.offsetParent === null) return;
     const rect = canvas.getBoundingClientRect();
@@ -267,7 +293,11 @@ function initFibonacciCanvas() {
         if (dist < p.size * 1.5) { // generous hitbox
           p.isCollected = true;
           p.opacity = 1;
+          localCollectedCookies++;
           window.dispatchEvent(new Event('cookie-collected'));
+          if (localCollectedCookies === 5) {
+            triggerConfetti();
+          }
         }
       }
     });
@@ -310,7 +340,24 @@ function initFibonacciCanvas() {
     ctx!.textAlign = 'center';
     ctx!.textBaseline = 'middle';
 
+    particles = particles.filter(p => !p.isConfetti || p.y <= height + 50);
+
     particles.forEach(p => {
+      if (p.isConfetti) {
+        p.vy += 0.4; // gravity
+        p.x += p.vx;
+        p.y += p.vy;
+        p.angle = (p.angle || 0) + (p.spin || 0);
+
+        ctx!.save();
+        ctx!.translate(p.x, p.y);
+        ctx!.rotate(p.angle);
+        ctx!.fillStyle = p.color || accentColor;
+        ctx!.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx!.restore();
+        return;
+      }
+
       // Basic movement
       p.x += p.vx;
       p.y += p.vy;
