@@ -26,6 +26,8 @@ jobs:
 
       - name: Build frontend (Vite + Tailwind)
         run: pnpm --filter frontend build
+        env:
+          VITE_PARTYKIT_HOST: api.planningpoker.mavz.eu
 
       - name: Deploy backend to Cloudflare Workers
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

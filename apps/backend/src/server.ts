@@ -22,6 +22,16 @@ export interface GameState {
   history: RoundResult[];
 }
 
+const VALID_VOTES: Record<string, string[]> = {
+  fibonacci: ['1', '2', '3', '5', '8', '13', '21', '?', '☕'],
+  tshirt: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '?'],
+};
+
+
+
+const RATE_LIMIT_WINDOW_MS = 1000;
+const RATE_LIMIT_MAX = 10;
+
 const JoinSchema = z.object({
   type: z.literal("JOIN"),
   name: z.string().min(1).max(16),
@@ -44,6 +54,7 @@ const BaseActionSchema = z.object({
 
 type Env = {
   PLANNING_POKER_SERVER: DurableObjectNamespace;
+  ALLOWED_ORIGINS: string;
 };
 
 export class PlanningPokerServer extends Server<Env> {
@@ -59,11 +70,21 @@ export class PlanningPokerServer extends Server<Env> {
     history: [],
   };
 
+  private rateLimits = new Map<string, number[]>();
+
   onConnect(connection: Connection, ctx: any) {
     connection.send(JSON.stringify({ type: "STATE", state: this.gameState }));
   }
 
   onMessage(sender: Connection, message: string) {
+    // Rate limiting
+    const now = Date.now();
+    const timestamps = this.rateLimits.get(sender.id) ?? [];
+    const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+    if (recent.length >= RATE_LIMIT_MAX) return;
+    recent.push(now);
+    this.rateLimits.set(sender.id, recent);
+
     try {
       const data = JSON.parse(message);
       
@@ -81,6 +102,8 @@ export class PlanningPokerServer extends Server<Env> {
         }
         case "VOTE": {
           const parsed = VoteSchema.parse(data);
+          const allowed = VALID_VOTES[this.gameState.deck];
+          if (!allowed?.includes(parsed.value)) return;
           if (this.gameState.players[sender.id]) {
             this.gameState.players[sender.id].vote = parsed.value;
           }
@@ -129,6 +152,7 @@ export class PlanningPokerServer extends Server<Env> {
 
   onClose(connection: Connection) {
     delete this.gameState.players[connection.id];
+    this.rateLimits.delete(connection.id);
     this.broadcast(JSON.stringify({ type: "STATE", state: this.gameState }));
   }
 
@@ -185,9 +209,19 @@ export class PlanningPokerServer extends Server<Env> {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    // Origin check for WebSocket upgrade requests
+    if (request.headers.get("Upgrade") === "websocket") {
+      const origin = request.headers.get("Origin");
+      const raw = env.ALLOWED_ORIGINS ?? "https://planningpoker.mavz.eu";
+      const allowed = raw.split(",").map(s => s.trim());
+      if (origin && !allowed.includes(origin)) {
+        return new Response("Origin not allowed", { status: 403 });
+      }
+    }
+
     return (
       (await routePartykitRequest(request, env)) ||
       new Response("Not found", { status: 404 })
     );
-  }
+  },
 } satisfies ExportedHandler<Env>;

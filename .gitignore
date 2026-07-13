@@ -2,3 +2,5 @@
 **.wrangler
 **.env
 **.partykit
+**.dev.vars
+**/dist
