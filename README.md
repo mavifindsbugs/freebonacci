@@ -1,7 +1,7 @@
 # freebonacci
 
 Yet another planning poker app but this one is completely free, I forgot to add ads and ate all the cookies, so there are none. It is kept as simple as possible, runs entirely on the edge and scales to infinity, perfectly accommodating the five people who will ever use it. Shoutout to Cloudflare for their awesome tooling.
-![showcase](/docs/showcase.png)
+![showcase](/docs/showcase2.png)
 
 ## Requirements
 
