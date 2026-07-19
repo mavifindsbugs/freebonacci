@@ -1,6 +1,8 @@
 {
   "name": "planning-poker-frontend",
   "version": "1.0.0",
+  "description": "Frontend client for Planning Poker.",
+  "author": "mavifindsbugs",
   "type": "module",
   "scripts": {
     "dev": "vite",

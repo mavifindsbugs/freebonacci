@@ -1,5 +1,7 @@
 {
   "name": "planning-poker-monorepo",
+  "description": "Real time planning poker application built with Cloudflare Workers and Vite.",
+  "author": "mavifindsbugs",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {

@@ -1,6 +1,8 @@
 {
   "name": "planning-poker-backend",
   "version": "1.0.0",
+  "description": "Backend server for Planning Poker.",
+  "author": "mavifindsbugs",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
