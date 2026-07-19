@@ -100,7 +100,7 @@ export class PlanningPokerServer extends Server<Env> {
 
     try {
       const data = JSON.parse(message);
-      
+
       switch (data.type) {
         case "JOIN": {
           const parsed = JoinSchema.parse(data);
@@ -127,9 +127,9 @@ export class PlanningPokerServer extends Server<Env> {
           this.gameState.isRevealed = true;
           this.gameState.roundCount++;
           const result = this.computeRoundResult(this.gameState.roundCount);
-          
+
           this.gameState.history.unshift(result);
-          
+
           // Cap history at 10 items to save memory
           if (this.gameState.history.length > 10) {
             this.gameState.history.pop();
@@ -207,12 +207,11 @@ export class PlanningPokerServer extends Server<Env> {
 
       const min = Math.min(...numericVotes);
       const max = Math.max(...numericVotes);
-      
+
       // Simple agreement logic for fibonacci-ish sequences
       if (min === max) {
         agreement = 'full';
       } else if (max - min <= 2 || (min === 1 && max === 3) || (min === 2 && max === 5)) {
-         // This is a rough proxy. We can refine it. Close means adjacent fibonacci numbers generally.
         agreement = 'close';
       } else {
         agreement = 'split';
@@ -221,9 +220,9 @@ export class PlanningPokerServer extends Server<Env> {
       // If we're using t-shirts, we can just do exact match for 'full'
       const uniqueVotes = new Set(Object.values(votes));
       if (uniqueVotes.size === 1 && uniqueVotes.size > 0) {
-         agreement = 'full';
+        agreement = 'full';
       } else if (uniqueVotes.size === 2) {
-         agreement = 'close';
+        agreement = 'close';
       }
     }
 
