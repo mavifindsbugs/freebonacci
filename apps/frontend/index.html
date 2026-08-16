@@ -235,10 +235,10 @@
           class="w-full bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-xl p-3 sm:p-4 grid gap-3 sm:gap-4 shadow-inner h-[60px] sm:h-[76px] items-center"
           :class="gameState.deck === 'fibonacci' ? 'grid-cols-2' : 'grid-cols-1'">
           <div class="text-center" x-show="gameState.deck === 'fibonacci'">
-            <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Average</span>
+            <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Median</span>
             <span class="text-xl md:text-2xl font-bold transition-colors"
               :class="gameState.isRevealed ? 'text-[var(--color-text)]' : 'text-[var(--color-muted)]'"
-              x-text="gameState.isRevealed && gameState.history[0]?.average ? gameState.history[0].average : '-.-'"></span>
+              x-text="gameState.isRevealed && gameState.history[0]?.median ? gameState.history[0].median : '-.-'"></span>
           </div>
           <div class="text-center flex flex-col justify-center">
             <span class="text-[var(--color-muted)] text-xs uppercase tracking-wider block mb-1">Agreement</span>
@@ -282,7 +282,7 @@
                 class="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-md px-2 py-1.5 text-xs shadow-sm">
                 <span class="text-[var(--color-muted)]">Round <span x-text="round.roundNumber"></span></span>
                 <span class="font-bold text-[var(--color-text)]"
-                  x-text="round.average ? round.average : round.agreement.toUpperCase()"></span>
+                  x-text="round.median ? round.median : round.agreement.toUpperCase()"></span>
               </div>
             </template>
           </div>
@@ -294,7 +294,17 @@
         <template x-for="(player, id) in gameState.players" :key="id">
           <div
             class="w-20 sm:w-24 bg-[var(--color-surface-raised)] border border-[var(--color-surface-border)] rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center aspect-[3/4] relative transition-all duration-300 shadow-lg"
-            :class="{ 'ring-2 ring-[var(--color-success)]/50': player.vote !== null && !gameState.isRevealed }">
+            :class="{
+              'ring-2 ring-[var(--color-success)]/50': player.vote !== null && !gameState.isRevealed && player.isOnline,
+              'opacity-60': !player.isOnline
+            }">
+
+            <!-- Offline badge -->
+            <div x-show="!player.isOnline" x-cloak
+              class="absolute top-1.5 right-1.5 flex items-center gap-1 bg-[var(--color-surface)] border border-[var(--color-surface-border)] rounded-full px-1.5 py-0.5">
+              <span class="block w-1.5 h-1.5 rounded-full bg-[var(--color-muted)] flex-shrink-0"></span>
+              <span class="text-[9px] font-semibold text-[var(--color-muted)] leading-none uppercase tracking-wide">away</span>
+            </div>
 
             <div class="flex-1 flex items-center justify-center w-full">
               <!-- Waiting for vote -->

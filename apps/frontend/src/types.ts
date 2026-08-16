@@ -3,6 +3,7 @@ export interface Player {
   name: string;
   vote: string | null;
   isSpectator: boolean;
+  isOnline: boolean;
 }
 
 export interface RoundResult {

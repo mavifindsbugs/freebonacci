@@ -21,6 +21,16 @@ document.addEventListener('alpine:init', () => {
     joinRoomIdError: '',
     collectedCookies: 0,
     myVote: null as string | null,
+
+    get stablePlayerId(): string {
+      let id = localStorage.getItem('poker_player_id');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('poker_player_id', id);
+      }
+      return id;
+    },
+
     gameState: {
       players: {} as Record<string, Player>,
       isRevealed: false,
@@ -145,6 +155,7 @@ document.addEventListener('alpine:init', () => {
         host: host,
         room: this.roomId,
         party: "planning-poker-server",
+        query: { playerId: this.stablePlayerId },
       });
 
       this.socket.addEventListener('message', (event) => {
