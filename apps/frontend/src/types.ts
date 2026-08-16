@@ -8,7 +8,7 @@ export interface Player {
 
 export interface RoundResult {
   roundNumber: number;
-  average: number | null;
+  median: number | null;
   agreement: 'full' | 'close' | 'split';
   timestamp: number;
 }
