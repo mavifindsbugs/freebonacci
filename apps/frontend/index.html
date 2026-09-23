@@ -335,8 +335,8 @@
             </div>
 
             <div class="mt-auto pt-3 border-t border-[var(--color-surface-border)] w-full text-center">
-              <span class="text-xs sm:text-sm font-medium text-[var(--color-muted)] truncate block px-2"
-                x-text="player.name"></span>
+              <span class="text-[10px] sm:text-[11px] leading-tight font-medium text-[var(--color-muted)] truncate block px-1"
+                x-text="player.name.length > 10 ? player.name.substring(0, 10) + '…' : player.name" :title="player.name"></span>
             </div>
           </div>
         </template>
@@ -363,7 +363,7 @@
     </div>
 
     <!-- Copyright & Links -->
-    <div class="w-full py-3 px-14 text-xs text-[var(--color-muted)] font-medium flex flex-wrap items-center justify-center gap-x-3 gap-y-2 relative">
+    <div class="w-full py-3 pl-2 pr-12 sm:px-14 text-[11px] sm:text-xs text-[var(--color-muted)] font-medium flex items-center justify-center gap-x-2 sm:gap-x-3 relative whitespace-nowrap">
       <span>&copy;&nbsp;<span x-text="new Date().getFullYear()"></span>&nbsp;<a
           href="https://github.com/mavifindsbugs"
           class="hover:text-[var(--color-text)] transition-colors">mavifindsbugs</a></span>
@@ -386,7 +386,7 @@
 
 
       <button @click="toggleTheme"
-        class="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-[var(--color-surface-raised)] transition-colors text-[var(--color-text)]">
+        class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-[var(--color-surface-raised)] transition-colors text-[var(--color-text)]">
         <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
