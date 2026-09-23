@@ -5,6 +5,7 @@ import type { GameState, Player } from './types';
 declare global {
   interface Window {
     Alpine: typeof Alpine;
+    umami?: { track: (eventName: string, eventData?: Record<string, any>) => void };
   }
 }
 
@@ -85,7 +86,7 @@ document.addEventListener('alpine:init', () => {
       } else {
         this.roomId = path;
         if (!this.isNameModalOpen) {
-          this.connectToRoom();
+          this.connectToRoom('direct_link');
         }
       }
 
@@ -110,7 +111,7 @@ document.addEventListener('alpine:init', () => {
 
       if (this.roomId) {
         if (!this.socket) {
-          this.connectToRoom();
+          this.connectToRoom('direct_link');
         } else if (this.socket.OPEN) {
           this.socket.send(JSON.stringify({ type: 'JOIN', name: this.playerName }));
         }
@@ -126,7 +127,7 @@ document.addEventListener('alpine:init', () => {
       localStorage.setItem('poker_name', this.playerName);
       this.roomId = crypto.randomUUID();
       window.history.pushState({}, '', `/${this.roomId}`);
-      this.connectToRoom();
+      this.connectToRoom('create');
     },
 
     joinRoom() {
@@ -145,10 +146,19 @@ document.addEventListener('alpine:init', () => {
       localStorage.setItem('poker_name', this.playerName);
       this.roomId = cleanId;
       window.history.pushState({}, '', `/${this.roomId}`);
-      this.connectToRoom();
+      this.connectToRoom('join_input');
     },
 
-    connectToRoom() {
+    connectToRoom(method: 'create' | 'join_input' | 'direct_link' = 'direct_link') {
+      const eventName = method === 'create' ? 'Create Room' :
+                        method === 'join_input' ? 'Join Room (Input)' :
+                        'Join Room (Direct Link)';
+
+      // Defer slightly to ensure umami is loaded if joining via direct link on page load
+      setTimeout(() => {
+        window.umami?.track(eventName);
+      }, 500);
+
       const host = import.meta.env.VITE_PARTYKIT_HOST || 'localhost:8787';
 
       this.socket = new PartySocket({

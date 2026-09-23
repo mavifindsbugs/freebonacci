@@ -360,7 +360,7 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     if (request.headers.get("Upgrade") === "websocket") {
       const origin = request.headers.get("Origin");
-      const raw = env.ALLOWED_ORIGINS ?? "https://freebonacci.mavz.eu";
+      const raw = env.ALLOWED_ORIGINS ?? "https://freebonacci.app,https://freebonacci.mavz.eu";
       const allowed = raw.split(",").map((s) => s.trim());
       if (origin && !allowed.includes(origin)) {
         return new Response("Origin not allowed", { status: 403 });
